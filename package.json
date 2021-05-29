@@ -1,0 +1,19 @@
+{
+  "name": "natours",
+  "version": "1.0.0",
+  "description": "Learning NodeJS and building stuff",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpaceFace02/Natours-API.git"
+  },
+  "author": "Chirag Rao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SpaceFace02/Natours-API/issues"
+  },
+  "homepage": "https://github.com/SpaceFace02/Natours-API#readme"
+}
