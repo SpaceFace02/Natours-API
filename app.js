@@ -12,7 +12,10 @@ const app = express();
 // Remember, order matters in middleware, we can't use the middle ware after the response has been sent back to the client.
 app.use(express.json());
 // Using logging middleware
-app.use(morgan("dev"));
+
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 // Serving static files like HTML, CSS etc in the browser.
 app.use(express.static(`${__dirname}/public`));
 
@@ -40,6 +43,8 @@ app.get("/", (request, response) => {
 });
 
 module.exports = app;
+
+//
 
 // This is the start of old redundant code.
 

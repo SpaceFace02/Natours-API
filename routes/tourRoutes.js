@@ -4,8 +4,9 @@ const tourControllers = require("../controllers/tourControllers");
 // Using the route as middleware to connect it to the specific route.
 const router = express.Router();
 
-// Middleware, only when id is present in the URL, we use param to define the middleware, checkIS is just a function.
-router.param("id", tourControllers.checkID);
+// Middleware, only when id is present in the URL, we use param to define the middleware, checkIS is just a function. We can use parameter middleware.
+
+// router.param("id", tourControllers.checkID);
 
 ////////////////////// Tours \\\\\\\\\\\\\\\\\\\\\\\\\\
 
