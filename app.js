@@ -2,10 +2,13 @@
 
 const express = require("express");
 const morgan = require("morgan");
+const dotenv = require("dotenv");
 // The folder is routes, coz it contains routes, but we exported the router from there.
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 
+// Env must be before app for it to be accessable.
+dotenv.config({ path: "./config.env" });
 const app = express();
 
 ////////////////////////////////// MIDDLEWARE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

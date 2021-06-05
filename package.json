@@ -17,14 +17,20 @@
     "url": "https://github.com/SpaceFace02/Natours-API/issues"
   },
   "homepage": "https://github.com/SpaceFace02/Natours-API#readme",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "dependencies": {
-    "@types/node": "^15.6.1",
+    "@types/node": "^15.12.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "mongoose": "^5.12.12",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "slugify": "^1.5.3",
+    "validator": "^13.6.0"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "eslint": "^7.27.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",

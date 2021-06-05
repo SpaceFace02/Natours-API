@@ -14,8 +14,22 @@ const router = express.Router();
 router
   .route("/")
   .get(tourControllers.getAllTours)
-  .post(tourControllers.checkBody, tourControllers.addTour);
-router.route("/:id").get(tourControllers.getTour);
+  .post(tourControllers.addTour);
+
+// Middleware first, prefill the query object and then running the getAllTours controller
+router
+  .route("/top-5-cheap")
+  .get(tourControllers.aliasTopTours, tourControllers.getAllTours);
+
+router.route("/tour-stats").get(tourControllers.getTourStats);
+router.route("/monthly-plan/:year").get(tourControllers.getMonthlyPlan);
+
+// request.params.id will give the id in the URL, as we have defined it here.
+router
+  .route("/:id")
+  .get(tourControllers.getTour)
+  .patch(tourControllers.updateTour)
+  .delete(tourControllers.deleteTour);
 
 // Exporting the module
 module.exports = router;
