@@ -56,6 +56,7 @@ class APIFeatures {
       // The minus sign to exclude fields.
       this.mongoQuery = this.mongoQuery.select("-__v");
     }
+
     return this;
   }
 
@@ -63,7 +64,7 @@ class APIFeatures {
     // 4. Pagination, skip is way abstract for the user
     // page 1--> 1 - 10, page 2 --> 11-20, page 3 --> 21-30
 
-    // Method 2, default value is 1 if nothing is passed in url. Also *1 to convert to string.
+    // Method 2, default value is 1 if nothing is passed in url. Also * 1 to convert to string.
     const pageNo = this.urlQuery.page * 1 || 1;
     const limit = this.urlQuery.limit * 1 || 100;
 

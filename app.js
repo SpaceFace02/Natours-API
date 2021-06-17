@@ -7,6 +7,10 @@ const dotenv = require("dotenv");
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 
+// Errors
+const AppError = require("./utils/AppError");
+const globalErrorController = require("./controllers/errorControllers");
+
 // Env must be before app for it to be accessable.
 dotenv.config({ path: "./config.env" });
 const app = express();
@@ -24,9 +28,6 @@ app.use(express.static(`${__dirname}/public`));
 
 // Creating MIDDLEWARE, next is to go to the next middleware in the middleware stack
 app.use((req, res, next) => {
-  console.log(
-    "Hello from the first middleware in the stack which gives us date 👋"
-  );
   req.requestTime = new Date().toISOString();
   next();
 });
@@ -34,6 +35,17 @@ app.use((req, res, next) => {
 // Mounting a router on a route below as middleware
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+
+// When the code reaches here, it means that none of the routes were able to catch it, the * stands for every http method
+
+app.all("*", (request, response, next) => {
+  // Whenever we pass something in next, it recognizes it as an error, and skips all middlewares and go to the app.use i.e. the global error -handling middleware .
+  next(new AppError(`Can't access ${request.url} on this server!`, 404));
+  // Status is automatically figured out.
+});
+
+// Express recognizes it as a error global middleware when we specify error first.
+app.use(globalErrorController);
 
 //////////////////////// END OF MIDDLEWARE \\\\\\\\\\\\\\\\\\\\\\
 

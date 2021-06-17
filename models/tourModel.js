@@ -77,6 +77,7 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: Boolean,
       default: false,
+      select: false,
     },
     imageCover: {
       //   Image URL
@@ -112,12 +113,6 @@ tourSchema.pre("save", function (next) {
   next();
 });
 
-tourSchema.methods.toJSON = function () {
-  let obj = this.toObject();
-  delete obj.secretTour;
-  return obj;
-};
-
 // We can run middleware before and after the save event. In pre middleware, we have access to the this keyword.
 
 // Query Middleware, processing a query, there are some secret tours, which are accessible to only VIP's or internally, hence we use the query middleware to filter those out of the result.
@@ -125,7 +120,7 @@ tourSchema.methods.toJSON = function () {
 // All query strings that start with find, using regex for that.
 tourSchema.pre(/^find/, function (next) {
   // Chaining the original find query, to just filter out again based on secret tours, based on mongoose schema, not database schema.
-  this.find({ secretTour: { $ne: true } }).select("-secretTour");
+  this.find({ secretTour: { $ne: true } });
 
   // Creating a new attribute of the object
   this.start = Date.now();
