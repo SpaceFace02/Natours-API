@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const fs = require("fs");
 const Tour = require("../../models/tourModel");
+const Review = require("../../models/reviewModel");
+const User = require("../../models/userModel");
 
 // Env
 dotenv.config({ path: "./config.env" });
@@ -28,15 +30,19 @@ mongoose
 // Saving the object to the database.
 
 // Read JSON File
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/tours-simple.json`, "utf-8")
+const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
+const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, "utf-8"));
+const reviews = JSON.parse(
+  fs.readFileSync(`${__dirname}/reviews.json`, "utf-8")
 );
 
 // Import data from database
 const importData = async () => {
   try {
-    // Accepts a JS Object
-    await Tour.create(tours);
+    // Accepts a JS Object. Doesn't validate anything before saving it to the database.
+    await Tour.create(tours, { validateBeforeSave: false });
+    // await User.create(users, { validateBeforeSave: false });
+    // await Review.create(reviews, { validateBeforeSave: false });
     console.log("Data Successfully Loaded");
   } catch (err) {
     console.log(err);
@@ -48,6 +54,8 @@ const importData = async () => {
 const deleteData = async () => {
   try {
     await Tour.deleteMany();
+    await User.deleteMany();
+    await Review.deleteMany();
     console.log("Data deleted");
   } catch (err) {
     console.log(err);

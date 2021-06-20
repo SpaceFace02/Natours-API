@@ -4,6 +4,9 @@ const validator = require("validator");
 const slugify = require("slugify");
 // This is the business logic, not the application logic. Fat models, thin controllers. This has nothing to do with request and responses, hence the name.
 
+// For the guides
+const User = require("./userModel");
+
 //   Schema
 const tourSchema = new mongoose.Schema(
   {
@@ -72,7 +75,39 @@ const tourSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
+    startLocation: {
+      // GeoJSON for geo-spatial data.
 
+      // Now here, type must be set to "Point", check the tours.json file. type of startLocation is not String, but Point, hence the type of the type of the startLocation is String and the type of the startLocation is Point. Get it??
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    // We choose to embed data, because a tour and location are closely related, a tour cannot happen without a location.
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
     // By default, they are false, not a secret tour. Remember, this is a mongoose schema, made wrt the data in the database. Its used by mongoose as reference. Hence changing stuff will result in mongoose displaying stuff differently, but database stores stuff as per imported from the file and created.
     secretTour: {
       type: Boolean,
@@ -92,9 +127,17 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    users: [
+      {
+        type: mongoose.Schema.ObjectId,
+        // References the User Model.
+        ref: "User",
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
@@ -104,18 +147,42 @@ tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
 });
 
-// Pre Document Middleware after the save command in the application and create command in the database. Before a document is saved to the database. It runs between ONLY .save command and .create command, findOne, findById or updateMany etc. will NOT WORK.
+// VIRTUAL POPULATE
+// The field in the ref property, which references to this tourSchema.
 
-// This is called a middleware or a pre-save hook.
+tourSchema.virtual("reviews", {
+  ref: "Review",
+  // In reviewModel, tour references this tourModel.
+  foreignField: "tour",
+  // In this tourModel, id of this tour is referenced in reviewModel.
+  localField: "_id",
+  justOne: false,
+});
+
+// PRE DOCUMENT Middleware after the save command in the application and create command in the database. Before a document is saved to the database. It runs between ONLY .save command and .create command, findOne, findById or updateMany etc. will NOT WORK.
+
+// This is called a document middleware or a pre-save hook.
 tourSchema.pre("save", function (next) {
   // Slug must be defined in the schema or else it will be ignored.
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
+// Embeds the tours data into the tours object, but if a user changes his role or gets promoted, then we need to change a lot of stuff, find which user has been modified and so on. Hence we simply use referencing.
+
+//////////// EMBEDDING //////////////
+// tourSchema.pre("save", async function (next) {
+//   // The map function returns promises as the function is asynchronous. Multiple outputs, put into an array, hence they are promises, not the data itself.
+//   const guidesPromises = await this.guides.map(
+//     async (id) => await User.findById(id)
+//   );
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
+
 // We can run middleware before and after the save event. In pre middleware, we have access to the this keyword.
 
-// Query Middleware, processing a query, there are some secret tours, which are accessible to only VIP's or internally, hence we use the query middleware to filter those out of the result.
+//QUERY MIDDLEWARE, processing a query, there are some secret tours, which are accessible to only VIP's or internally, hence we use the query middleware to filter those out of the result.
 
 // All query strings that start with find, using regex for that.
 tourSchema.pre(/^find/, function (next) {
@@ -124,12 +191,6 @@ tourSchema.pre(/^find/, function (next) {
 
   // Creating a new attribute of the object
   this.start = Date.now();
-  next();
-});
-
-// Post gets access to all docs returned from that query, not the query itself as its executed after the query.
-tourSchema.post(/^find/, function (documents, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
 });
 
@@ -144,6 +205,22 @@ tourSchema.pre("aggregate", function (next) {
   // console.log(this._pipeline);
   console.log(this.pipeline());
 
+  next();
+});
+
+// We wanna populate/fill up the guides field. This creates a new query.
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "guides",
+    // - __v and - passwordChangedAt says that we want to exclude those fields, hence the -. Also we don't want any comma or else it won't work.
+    select: "-__v -passwordChangedAt",
+  });
+  next();
+});
+
+// Post gets access to all docs returned from that query, not the query itself as its executed after the query.
+tourSchema.post(/^find/, function (documents, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
 });
 

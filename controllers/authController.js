@@ -24,6 +24,22 @@ const createSignTokenAndResponse = (user, status_code, response, message) => {
   // Signing Token
   const token = signToken(user._id);
 
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    // Cannot be modified by browser.(XSS Attacks).
+    httpOnly: true,
+  };
+
+  // Sent only via HTTPS during production.
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  // 90d is understood only by JWT, not cookie. Days in milliseconds.
+  response.cookie("jwt", token, cookieOptions);
+
+  // Removes password from output
+  user.password = undefined;
   response.status(status_code).json({
     status: message,
     token,
@@ -44,7 +60,6 @@ exports.signup = catchAsync(async (request, response, next) => {
     email: request.body.email,
     password: request.body.password,
     passwordConfirm: request.body.passwordConfirm,
-    passwordChangedAt: request.body.passwordChangedAt,
     role: request.body.role,
   });
 

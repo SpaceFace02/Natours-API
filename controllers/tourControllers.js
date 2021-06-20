@@ -3,8 +3,10 @@ const Tour = require("../models/tourModel");
 const APIFeatures = require("../utils/APIFeatures");
 
 // Error Handling
-const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
+
+// Factory functions
+const factoryFn = require("./handlerFactory");
 
 // We dont wanna change the allTours controller, nor do we want to make a whole function for this. Hence we use a middleware to parse the URL before sending it.
 exports.aliasTopTours = (request, response, next) => {
@@ -16,110 +18,15 @@ exports.aliasTopTours = (request, response, next) => {
 };
 
 //////////////////////// Functions \\\\\\\\\\\\\\\\\\\\\\\\\\
-exports.getAllTours = async (request, response) => {
-  //   console.log(request.requestTime);
-  try {
-    /////   BUILD QUERY //////
-
-    ///////  EXECUTE QUERY //ratingsAverage/////
-    const features = new APIFeatures(Tour.find(), request.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const allTours = await features.mongoQuery;
-
-    ///////  RESPONSE //////////
-    response.status(200).json({
-      status: "Success",
-      results: allTours.length,
-      data: allTours,
-    });
-  } catch (err) {
-    response.status(404).json({
-      status: "Fail",
-      message: err,
-    });
-  }
-};
-
-// We add next for error handling, if there's an error, call next and if we pass an argument in next, express will regard that argument as an error.
-exports.getTour = catchAsync(async (request, response, next) => {
-  // Add double equals as its a string and we just want to compare without the types (one is string and one is int)
-
-  //   Tour.findOne({ _id: request.params.id })
-  const tour = await Tour.findById(request.params.id);
-
-  if (!tour) {
-    // We return as we want to stop execution of the function at that stage.
-    return next(new AppError("No tour found for that ID", 404));
-  }
-
-  response.status(200).json({
-    status: "success",
-    data: tour,
-  });
-});
-
-// Focusing code, preventing copy-paste. This function returns another function which is assigned to addTour, as we don't want addTour to be a function called inside another function.
-
-// The rejected promise is caught by this block
-
-// next is required, so that it can be handled in the global error handling middleware.
-exports.addTour = catchAsync(async (request, response, next) => {
-  //   This method calls the method Create in the Tour object itself, use try catch if using async await
-  // In JavaScript, Model.prototype is the new object created from the class, which here is the model( the prototype is the document. The prototype object of the class Tour is new Tour)
-  const newTour = await Tour.create(request.body);
-
-  response.status(201).json({
-    status: "Success",
-    data: newTour,
-  });
-});
-
-exports.updateTour = catchAsync(async (request, response, next) => {
-  const updatedTour = await Tour.findByIdAndUpdate(
-    request.params.id,
-    request.body,
-    {
-      //   Returns the modified object
-      new: true,
-      // Runs the validation on the updated data wrt the schema, otherwise there's no validation.
-      runValidators: true,
-    }
-  );
-
-  if (!updatedTour) {
-    // We return as we want to stop execution of the function at that stage.
-    return next(new AppError("No tour found for that ID", 404));
-  }
-
-  response.status(201).json({
-    status: "Success",
-    data: {
-      tour: updatedTour,
-    },
-  });
-});
-
-exports.deleteTour = catchAsync(async (request, response, next) => {
-  const deletedTour = await Tour.findByIdAndDelete(request.params.id);
-
-  if (!deletedTour) {
-    // We return as we want to stop execution of the function at that stage.
-    return next(new AppError("No tour found for that ID", 404));
-  }
-
-  response.status(204).json({
-    status: null,
-  });
-});
+exports.getAllTours = factoryFn.getAll(Tour, "tour");
+exports.getTour = factoryFn.getOne(Tour, "tour", { path: "reviews" });
+exports.createTour = factoryFn.createOne(Tour, "tour");
+exports.updateTour = factoryFn.updateOne(Tour, "tour");
+exports.deleteTour = factoryFn.deleteOne(Tour, "tour");
 
 exports.getMonthlyPlan = catchAsync(async (request, response) => {
   // To transform ot a number, we multiply by 1
   const year = request.params.year * 1;
-  console.log(year);
 
   const plan = await Tour.aggregate([
     {

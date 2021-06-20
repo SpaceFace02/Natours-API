@@ -40,7 +40,6 @@ class APIFeatures {
     } else {
       this.mongoQuery = this.mongoQuery.sort("name");
     }
-
     return this;
   }
 

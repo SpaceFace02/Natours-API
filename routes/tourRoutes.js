@@ -1,6 +1,8 @@
 const express = require("express");
 const tourControllers = require("../controllers/tourControllers");
 const authController = require("../controllers/authController");
+const reviewRouter = require("./reviewRoutes");
+const Tour = require("../models/tourModel");
 
 // Using the route as middleware to connect it to the specific route.
 const router = express.Router();
@@ -9,14 +11,26 @@ const router = express.Router();
 
 // router.param("id", tourControllers.checkID);
 
+/////////////////   MERGE PARAMS, USED IN NESTED URLS ///////////////////
+
+// router is just a middleware, so like app.use, we can mount reviewRouter here when we hit the URL.
+// routed in app.js to tourRouter and here to reviewRouter.
+
+// whenever /tours/tourId shows up, its redirected here, so only this router has access to the tourId parameter, not the reviewRouter, after we redirect it to the reviewRouter.
+router.use("/:tourId/reviews", reviewRouter);
+
 ////////////////////// Tours \\\\\\\\\\\\\\\\\\\\\\\\\\
 
 // The router runs at the specified URL, hence we don't specify the entire path.
 router
   .route("/")
-  // First the protect, and then the get all tours
-  .get(authController.protect, tourControllers.getAllTours)
-  .post(tourControllers.addTour);
+  // We wanna expose this part of the route to everyone.
+  .get(tourControllers.getAllTours)
+  .post(
+    authController.protect,
+    authController.restrictTo("admin", "leadTourGuide"),
+    tourControllers.createTour
+  );
 
 // Middleware first, prefill the query object and then running the getAllTours controller
 router
@@ -24,19 +38,42 @@ router
   .get(tourControllers.aliasTopTours, tourControllers.getAllTours);
 
 router.route("/tour-stats").get(tourControllers.getTourStats);
-router.route("/monthly-plan/:year").get(tourControllers.getMonthlyPlan);
+router
+  .route("/monthly-plan/:year")
+  .get(
+    authController.protect,
+    authController.restrictTo("admin", "leadTourGuide", "guides"),
+    tourControllers.getMonthlyPlan
+  );
 
 // request.params.id will give the id in the URL, as we have defined it here.
 router
   .route("/:id")
-
   .get(tourControllers.getTour)
-  .patch(tourControllers.updateTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin", "leadTourGuide"),
+    tourControllers.updateTour
+  )
   .delete(
     authController.protect,
     authController.restrictTo("admin", "leadTourGuide"),
     tourControllers.deleteTour
   );
+
+// POST /tours/23dsa3/reviews reviews for the tour id
+// GET /tour/23dsa3/reviws  gets reviews for that tour
+// GET /tour/23dsa3/reviews/987hf3   gets that particular review for that particular tour.
+
+// Counter-intuitive that we are calling reviewControllers here, but we want to post the review to the tour and also its /tour, so it comes first. Hence you can keep it, however, I'm using merge params.
+
+// router
+//   .route("/:tourId/reviews")
+//   .post(
+//     authController.protect,
+//     authController.restrictTo("user"),
+//     reviewControllers.createReview
+//   );
 
 // Exporting the module
 module.exports = router;

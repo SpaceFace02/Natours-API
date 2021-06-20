@@ -1,11 +1,24 @@
 // Everything related to middleware goes here, the middleware is added to the web application in this file.
 
+// Using mongoose schema really prevents a lot of attacks.
+
 const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
+const rateLimit = require("express-rate-limit");
+const helmet = require("helmet");
+
+// Data Sanitization
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+
+// Parameter pollution, more that one parameter in sort or any of the APIFeatures
+const hpp = require("hpp");
+
 // The folder is routes, coz it contains routes, but we exported the router from there.
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
+const reviewRouter = require("./routes/reviewRoutes");
 
 // Errors
 const AppError = require("./utils/AppError");
@@ -15,16 +28,59 @@ const globalErrorController = require("./controllers/errorControllers");
 dotenv.config({ path: "./config.env" });
 const app = express();
 
-////////////////////////////////// MIDDLEWARE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-// Remember, order matters in middleware, we can't use the middle ware after the response has been sent back to the client.
-app.use(express.json());
-// Using logging middleware
+/////////////////  GLOBAL MIDDLWARE ///////////////////////////
 
+// Remember, order matters in middleware, we can't use the middle ware after the response has been sent back to the client.
+
+// Special HTTP headers, we pass a function in, not a function call, but here the function returns a function, so its good.
+app.use(helmet());
+
+////////   BODY PARSER, reads data from body into request.body
+app.use(
+  express.json({
+    limit: "10kb",
+  })
+);
+
+// Limit request from same IP.
+const limiter = rateLimit({
+  max: 100,
+  // In milliseconds.
+  windowMs: 60 * 60 * 1000,
+  message: "Rate limit exceeded, try again in an hour",
+});
+
+// Affect all routes that start with /api
+app.use("/api", limiter);
+
+// Data Sanitization agains NOSQL query injection. Filters out the dollar signs.
+app.use(mongoSanitize());
+
+// Data sanitization against XSS
+app.use(xss());
+
+// Prevent parameter pollution. If we want to find duration=5 and duration=9, we can whitelist duration as a parameter, but keep it working on sort.
+app.use(
+  hpp({
+    whitelist: [
+      "duration",
+      "ratingsQuantity",
+      "ratingsAverage",
+      "maxGroupSize",
+      "difficulty",
+      "price",
+    ],
+  })
+);
+
+// Serving static files like HTML, CSS etc in the browser.
+// Using logging middleware
+app.use(express.static(`${__dirname}/public`));
+
+// Development Logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-// Serving static files like HTML, CSS etc in the browser.
-app.use(express.static(`${__dirname}/public`));
 
 // Creating MIDDLEWARE, next is to go to the next middleware in the middleware stack
 app.use((req, res, next) => {
@@ -35,6 +91,7 @@ app.use((req, res, next) => {
 // Mounting a router on a route below as middleware
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 // When the code reaches here, it means that none of the routes were able to catch it, the * stands for every http method
 

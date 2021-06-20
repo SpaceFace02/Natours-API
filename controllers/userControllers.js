@@ -4,24 +4,18 @@ const User = require("../models/userModel");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 
-//////////////////////// Functions \\\\\\\\\\\\\\\\\\\\\\\\\\
-exports.getAllUsers = async (request, response) => {
-  try {
-    const users = await User.find();
+// Factory functions
+const factoryFn = require("./handlerFactory");
 
-    ///////  RESPONSE //////////
-    response.status(200).json({
-      status: "Success",
-      results: users.length,
-      data: users,
-    });
-  } catch (err) {
-    response.status(404).json({
-      status: "Fail",
-      message: err,
-    });
-  }
-};
+//////////////////////// Functions \\\\\\\\\\\\\\\\\\\\\\\\\\
+
+// Factory Functions.
+exports.getAllUsers = factoryFn.getAll(User, "user");
+exports.getUser = factoryFn.getOne(User, "user");
+
+// Do NOT UPDATE password with this.
+exports.updateUser = factoryFn.updateOne(User, "user");
+exports.deleteUser = factoryFn.deleteOne(User, "user");
 
 // ...allowedFields is for making sure that multiple parameters are passed, and those parameters are converted into an array.
 const filterBody = (obj, ...allowedFields) => {
@@ -35,6 +29,12 @@ const filterBody = (obj, ...allowedFields) => {
   });
 
   return filteredBody;
+};
+
+// Faking that the request.params.id is actually the id of the currently logged in user.
+exports.getMe = (request, response, next) => {
+  request.params.id = request.user.id;
+  next();
 };
 
 exports.updateMe = catchAsync(async (request, response, next) => {
@@ -77,28 +77,3 @@ exports.deleteMe = catchAsync(async (request, response, next) => {
     data: null,
   });
 });
-
-exports.createNewUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet implemented!😥🙄",
-  });
-};
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet implemented!😥🙄",
-  });
-};
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet implemented!😥🙄",
-  });
-};
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "error",
-    message: "This route is not yet implemented!😥🙄",
-  });
-};
