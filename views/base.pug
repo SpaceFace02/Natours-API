@@ -1,0 +1,37 @@
+//- Serve static files folder defined in route as the public folder.
+//- <h1>The Park Camper</h1> Translates to this
+//- Parameters must be in paranthesis, no space.
+
+
+//- This base.pug file is the layout for everypage, header and footer are always present. We create new pages where we have content for that page and we extend this file to the new page so that the header and footer exist there as well.
+
+//- Extends is the oppoiste of including basically. Extending makes the base template have access to its all the locals which have extended the base.
+doctype html
+html
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+        title Natours | #{title}
+        //- Relative URL, will start at the root of the page. ALL ROUTES MUST BE RELATIVE TO THE ROOT URL.
+        link(rel="stylesheet" href="/css/style.css")
+        link(rel= "shortcut icon" type="image/png" href="/img/favicon.png")
+        link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
+
+    body
+        // HEADER
+        include _header
+        
+
+        // CONTENT
+        block content
+            h1 This is the content placeholder heading
+
+        // FOOTER 
+        include _footer
+
+//- h1= tour
+//- h2=x * 2
+//- p= user.toUpperCase()
+//- header, footer are children, parent included the children.
+
+//- - const x = 9;

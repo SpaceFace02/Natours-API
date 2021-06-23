@@ -1,3 +1,5 @@
+// EPIPHANY: While publishing documentation, choose no env as it would then replace the env variables with their actual values.
+
 // Everything related to middleware goes here, the middleware is added to the web application in this file.
 
 // Using mongoose schema really prevents a lot of attacks.
@@ -7,6 +9,9 @@ const morgan = require("morgan");
 const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+
+// Manipulate path names
+const path = require("path");
 
 // Data Sanitization
 const mongoSanitize = require("express-mongo-sanitize");
@@ -19,6 +24,7 @@ const hpp = require("hpp");
 const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
+const viewRouter = require("./routes/viewRoutes");
 
 // Errors
 const AppError = require("./utils/AppError");
@@ -28,12 +34,20 @@ const globalErrorController = require("./controllers/errorControllers");
 dotenv.config({ path: "./config.env" });
 const app = express();
 
+// Set a template engine using express. Pug templates are called views in express(MVC's)
+app.set("view engine", "pug");
+// ./ is relative to the directory from which we launch the node application. We don't know whether the path provided is with a slash or not, so path.join() prevents this bug.
+app.set("views", path.join(__dirname, "views"));
+
 /////////////////  GLOBAL MIDDLWARE ///////////////////////////
 
 // Remember, order matters in middleware, we can't use the middle ware after the response has been sent back to the client.
 
 // Special HTTP headers, we pass a function in, not a function call, but here the function returns a function, so its good.
 app.use(helmet());
+
+// Serving static files like HTML, CSS etc in the browser. public folder is considered default, hence all assets come from here. Each asset triggers a get request. Its path location is the route of a get request.
+app.use(express.static(path.join(__dirname, "public")));
 
 ////////   BODY PARSER, reads data from body into request.body
 app.use(
@@ -73,10 +87,7 @@ app.use(
   })
 );
 
-// Serving static files like HTML, CSS etc in the browser.
 // Using logging middleware
-app.use(express.static(`${__dirname}/public`));
-
 // Development Logging
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -87,6 +98,9 @@ app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
 });
+
+// Mounting view viewRoutes
+app.use("/", viewRouter);
 
 // Mounting a router on a route below as middleware
 app.use("/api/v1/tours", tourRouter);

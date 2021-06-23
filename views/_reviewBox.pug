@@ -1,0 +1,12 @@
+//- mixins are reusable components.
+mixin reviewBox(review)
+  .reviews__card
+    .reviews__avatar
+      img.reviews__avatar-img(src=`/img/users/${review.user.photo}`, alt=`${review.user.name}`)
+      h6.reviews__user= review.user.name
+    p.reviews__text= review.review
+    //- loop over 1 to 5 and compare with review rating. If rating is less than star, that means that the rating is already declared and start filling with grey stars. if else doesn't work here, so we used ternary.
+    .reviews__rating
+      each star in [1, 2, 3, 4, 5]
+        svg.reviews__star(class = `reviews__star--${review.rating >= star ? "active" : "inactive"}`)
+          use(xlink:href='/img/icons.svg#icon-star')

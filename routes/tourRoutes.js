@@ -45,6 +45,14 @@ router
     authController.restrictTo("admin", "leadTourGuide", "guides"),
     tourControllers.getMonthlyPlan
   );
+// Easier to understand, we could also used queryStrings.
+router.get(
+  "/tours-within/distance/:distance/center/:latlng/distUnit/:unit",
+  tourControllers.getToursWithin
+);
+//  Even this can work ---> /tours-distance?distance=200&center=40,45&unit=mile
+
+router.get("/distances/:latlng/distUnit/:unit", tourControllers.getDistances);
 
 // request.params.id will give the id in the URL, as we have defined it here.
 router

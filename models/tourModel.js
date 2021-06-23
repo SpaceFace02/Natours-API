@@ -13,7 +13,7 @@ const tourSchema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "A Name is required"],
-      // unique, so that no other name value can have the same name.
+      // unique, so that no other name value can have the same name. So it creates an index basically. Check mongoDB compass for more info.
       unique: true,
       trim: true,
       maxlength: [40, "A tour must be within 40 letters long."],
@@ -43,6 +43,8 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       min: [1, "Rating must be above 1.0"],
       max: [5, "Rating must be below 5.0"],
+      default: null,
+      set: (value) => Math.round(value * 10) / 10, // 4.666,   4.66 * 10 = 46.6666   , 46.666 rounded -> 47 (nearest integer)
     },
     ratingsQuantity: {
       type: Number,
@@ -140,6 +142,15 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+// Indexes improve the read performance of your application. Never ignore it.
+
+// 1 is ascending order, -1 is descending order. Creating an ordered list basically. Research more about it. Compound index, can also be single field index.
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+// An index is resource intensive, and must be updated whenever the collection, so if the collection has a high write-read ratio, indexes will update always often, and uses up memory. Balance the cost of maintaining the index with how often the query is used.
+
+// This index needs to be a 2Dsphere index, for earth like points on an earth-like sphere, whereas use 2d index if you are querying for imaginary points on a 2D plane.
+tourSchema.index({ startLocation: "2dsphere" });
 
 // For every get request. Also we can't query in this as its not stored in MongoDB.
 // We don't use an arrow function as it does not get its own this keyword, unlike a normal function. this points to the current document.
@@ -149,7 +160,6 @@ tourSchema.virtual("durationWeeks").get(function () {
 
 // VIRTUAL POPULATE
 // The field in the ref property, which references to this tourSchema.
-
 tourSchema.virtual("reviews", {
   ref: "Review",
   // In reviewModel, tour references this tourModel.
@@ -197,14 +207,17 @@ tourSchema.pre(/^find/, function (next) {
 // Before the aggregation is executed, we want to exclude the secret tours from any calculation happening in the aggregation
 
 tourSchema.pre("aggregate", function (next) {
+  // $geoNear must always be first in the aggregation pipeline.
+  if (this.pipeline()[0].$geoNear) {
+    return next();
+  }
+
   // Unshift adds at the beginning of the array. (push, pop, shift, unshift)
   this.pipeline().unshift({
     $match: { secretTour: { $ne: true } },
   });
 
-  // console.log(this._pipeline);
-  console.log(this.pipeline());
-
+  console.log(this._pipeline);
   next();
 });
 

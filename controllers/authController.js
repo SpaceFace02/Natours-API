@@ -131,8 +131,6 @@ exports.restrictTo = (...roles) =>
   function (request, response, next) {
     // Roles is an array , ['admin', 'leadTourGuide'], that we pass in.
 
-    console.log(roles);
-
     // We could use find by id again. it would be copy paste, hence we stored it in request.user.
     if (!roles.includes(request.user.role)) {
       return next(

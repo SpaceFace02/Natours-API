@@ -102,12 +102,15 @@ exports.getAll = (Model, type) =>
       .paginate();
 
     ///////  EXECUTE QUERY //ratingsAverage/////
-    const allTours = await features.mongoQuery;
+    const documents = await features.mongoQuery;
+
+    // To understand indexing better, see the executionStats field when the following code is uncommented.
+    // const documents = await features.mongoQuery.explain();
 
     ///////  RESPONSE //////////
     response.status(200).json({
       status: `Successfully returned all ${type}s`,
-      results: allTours.length,
-      data: allTours,
+      results: documents.length,
+      data: documents,
     });
   });
