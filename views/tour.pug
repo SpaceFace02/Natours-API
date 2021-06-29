@@ -1,6 +1,12 @@
 extends base
 include _reviewBox
 
+//- append head, adds this line of code in the base template at the end of the head block.
+//- We cannot run mapbox npm library with parcel, hence we keep using the CDN. Its a developer bug on their part.
+block append head
+  script(src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js') 
+  link(href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css', rel='stylesheet') 
+
 mixin overviewBox(icon, label, text)
   .overview-box__detail
     svg.overview-box__icon
@@ -67,12 +73,12 @@ block content
         img.picture-box__img(src=`/img/tours/${image}`, alt=`${tour.name} ${index + 1}`, class=`picture-box__img--${index + 1}`)
 
 
+  //- data-* is used to embed custom data.
   section.section-map
-    #map
+    #map(data-locations=`${JSON.stringify(tour.locations)}`)    
 
   section.section-reviews
     .reviews
-
       each review in tour.reviews
         +reviewBox(review)
 
@@ -85,4 +91,9 @@ block content
       .cta__content
         h2.heading-secondary What are you waiting for?
         p.cta__text #{tour.duration} days. 1 adventure. Infinite memories. Make it yours today!
-        button.btn.btn--green.span-all-rows Book tour now!
+
+        //- if data-tour-id, then it is converted to camelcase automatically. If you specify camelcase here, it gets converted to all lowercase. Messed up shit I know. 
+        if (user)
+          button.btn.btn--green.span-all-rows#booktour(data-tour-id=`${tour._id}`) Book tour now!
+        else
+          a.btn.btn--green.span-all-rows(href="/login") Log in to book tour!

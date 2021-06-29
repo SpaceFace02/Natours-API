@@ -1,4 +1,8 @@
 const express = require("express");
+
+// Image/File Uploads
+const multer = require("multer");
+
 const authController = require("../controllers/authController");
 const userControllers = require("../controllers/userControllers");
 
@@ -11,6 +15,9 @@ const router = express.Router();
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 
+// Getting the server to do something, same route as login tho, different verb.
+router.get("/login", authController.logout);
+
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 router
@@ -20,9 +27,17 @@ router
 // Router is just a mini-application, and middleware always runs in sequence. Protect is basically just a middleware. It will only call the next middlware if the user is authenticated.
 router.use(authController.protect);
 
-router.patch("/updateMe", userControllers.updateMe);
+// The photo is the single field in the form that is going to the uploaded. Its a middleware basically.
+router.patch(
+  "/updateMe",
+  userControllers.uploadUserPhoto,
+  userControllers.resizeUserPhoto,
+  userControllers.updateMe
+);
+
 // The user is still in out database, but we don't want anybody to access that account from anywhere, hence delete verb works.
 router.delete("/deleteMe", userControllers.deleteMe);
+
 // Gives all information about myself.
 router.get("/me", userControllers.getMe, userControllers.getUser);
 

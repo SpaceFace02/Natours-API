@@ -21,6 +21,8 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
+    // While creating a new user, we specify a default image. The path is specified in the pug template as /img/users... and public is already set to be default dir for static files.
+    default: "default.jpg",
   },
   active: {
     type: Boolean,

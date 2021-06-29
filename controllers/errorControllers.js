@@ -28,33 +28,61 @@ const handleValidationErrorDB = (error) => {
 const handleJsonWebTokenErrorDB = (error) =>
   new AppError("Invalid token. Please login again", 404);
 
-const sendErrorDev = (error, response) => {
-  response.status(error.statusCode).json({
-    status: error.status,
+// No else after return, not needed. Also an else block cannot have a lonely if, only an if, it must have an else as well.
+
+const sendErrorDev = (error, response, request) => {
+  // Without the host. Must start with api for operational errors, else we render the template out to see. Only the 1. API shows all error details without the website displayed. DUH!
+  if (request.originalUrl.startsWith("/api")) {
+    return response.status(error.statusCode).json({
+      status: error.status,
+      message: error.message,
+      stack: error.stack,
+      error: error,
+    });
+  }
+  // 2. RENDERED TEMPLATE IS DISPLAYED WHEN /api is not in url.
+  console.error("ERROR 💥", error);
+  return response.status(error.statusCode).render("error", {
+    title: "Something went Wrong!",
     message: error.message,
-    stack: error.stack,
-    error: error,
   });
 };
 
-const sendErrorProduction = (error, response) => {
-  // Only Operational errors, not programming errors
-  if (error.isOperational) {
-    response.status(error.statusCode).json({
-      status: error.status,
-      message: error.message,
-    });
-    // These are programming errors.
-  } else {
+const sendErrorProduction = (error, response, request) => {
+  // Only Operational errors, not programming errors. Errors that are known by us and defined by us as next(new AppError)
+
+  // FOR API
+  if (request.originalUrl.startsWith("/api")) {
+    // 1a. Operational trusted error, send to client.
+    if (error.isOperational) {
+      return response.status(error.statusCode).json({
+        status: error.status,
+        message: error.message,
+      });
+    }
+    // 1b. These are programming errors, don't leak details to client.
     // 1. Logging
     console.error("ERROR 💥", error);
-
     // 2. Sending generic message.
-    response.status(500).json({
+    return response.status(500).json({
       status: "error",
-      message: "Something went wrong on our side 😢.",
+      message: "Something went wrong on our side 😢.Please try again.",
     });
   }
+
+  // 2a. FOR RENDERED WEBSITE, no api in url.
+  if (error.isOperational) {
+    // RENDERED TEMPLATE IS DISPLAYED WHEN /api is not in url.
+    return response.status(error.statusCode).render("error", {
+      title: "Something went Wrong!",
+      message: error.message,
+    });
+  }
+  // 2b. Programmming errors, don't leak details to client.
+  return response.status(error.statusCode).render("error", {
+    title: "Something went Wrong!",
+    message: "Please try again later.",
+  });
 };
 
 ////////////////// GLOBAL MIDDLEWARE ///////////////
@@ -69,10 +97,11 @@ module.exports = (error, request, response, next) => {
   error.status = error.status || "error";
 
   if (process.env.NODE_ENV === "development") {
-    sendErrorDev(error, response);
+    sendErrorDev(error, response, request);
   } else if (process.env.NODE_ENV === "production") {
     // Not a good practice to change the arguments passed into a function, hence we don't use error.
     let errorCopy = { ...error };
+    errorCopy.message = error.message;
 
     if (error.name === "CastError") errorCopy = handleCastErrorDB(error);
 
@@ -85,6 +114,6 @@ module.exports = (error, request, response, next) => {
       errorCopy = handleJsonWebTokenErrorDB(error);
 
     // This must be at the last, as its the response.
-    sendErrorProduction(errorCopy, response);
+    sendErrorProduction(errorCopy, response, request);
   }
 };

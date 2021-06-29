@@ -32,17 +32,15 @@ mongoose
 // Read JSON File
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, "utf-8"));
 const users = JSON.parse(fs.readFileSync(`${__dirname}/users.json`, "utf-8"));
-const reviews = JSON.parse(
-  fs.readFileSync(`${__dirname}/reviews.json`, "utf-8")
-);
+const reviews = JSON.parse(fs.readFileSync(`${__dirname}/reviews.json`, "utf-8"));
 
 // Import data from database
 const importData = async () => {
   try {
     // Accepts a JS Object. Doesn't validate anything before saving it to the database.
     await Tour.create(tours, { validateBeforeSave: false });
-    // await User.create(users, { validateBeforeSave: false });
-    // await Review.create(reviews, { validateBeforeSave: false });
+    await User.create(users, { validateBeforeSave: false });
+    await Review.create(reviews, { validateBeforeSave: false });
     console.log("Data Successfully Loaded");
   } catch (err) {
     console.log(err);

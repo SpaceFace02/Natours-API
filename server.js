@@ -14,10 +14,10 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-const app = require("./app");
-
-// ENVS, config them before app, or else we cannot see the env variables in app.js as it hasn't been configured yet in the above case.
+// ENVS, config them before app, or else we cannot see the env variables in app.js as it hasn't been configured yet. Otherwise, we require app without the env variables and it doesn't get listen properly later on. It must be defined in global variables as early as possible in the code as per its docs. TODO: REVIEW: EPIPHANY:
 dotenv.config({ path: "./config.env" });
+
+const app = require("./app");
 
 // Mongoose
 const db_string = process.env.DATABASE.replace(

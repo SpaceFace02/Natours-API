@@ -8,30 +8,41 @@
 //- Extends is the oppoiste of including basically. Extending makes the base template have access to its all the locals which have extended the base.
 doctype html
 html
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport" content="width=device-width, initial-scale=1.0")
-        title Natours | #{title}
-        //- Relative URL, will start at the root of the page. ALL ROUTES MUST BE RELATIVE TO THE ROOT URL.
-        link(rel="stylesheet" href="/css/style.css")
-        link(rel= "shortcut icon" type="image/png" href="/img/favicon.png")
-        link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
+  head
+    block head
+      meta(charset="UTF-8")
+      meta(name="viewport" content="width=device-width, initial-scale=1.0")
+      //- meta(http-equiv="Content-Security-Policy" content="default-src 'self' gap:; script-src 'self' data: https://ssl.gstatic.com 'unsafe-inline' 'unsafe-eval'; object-src *; style-src 'self' data: 'unsafe-inline'; img-src 'self' data:; media-src 'self' data:; font-src 'self' data:; connect-src *")
+      title Natours | #{title}
+      //- Relative URL, will start at the root of the page. ALL ROUTES MUST BE RELATIVE TO THE ROOT URL.
+      link(rel="stylesheet" href="/css/style.css")
+      link(rel= "shortcut icon" type="image/png" href="/img/favicon.png")
+      link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
 
-    body
-        // HEADER
-        include _header
-        
 
-        // CONTENT
-        block content
-            h1 This is the content placeholder heading
+  body
+    // HEADER
+    include _header
 
-        // FOOTER 
-        include _footer
 
-//- h1= tour
-//- h2=x * 2
-//- p= user.toUpperCase()
+    // CONTENT
+    block content
+      h1 This is the content placeholder heading
+
+    // FOOTER 
+    include _footer
+
+    // SCRIPT
+    //-  Put it at the bottom to allow the DOM to load completely.
+
+    //- root is public file, hence the relative URL to it. public defined in app.js
+    script(src="/js/bundle.js")
+    script(src='https://js.stripe.com/v3/') 
+
+    //- script(src="/js/mapBox.js")
+    //- script(src="/js/login.js")
+    //- script(src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous" referrerpolicy="no-referrer")
+    //- script(src="/js/scroll.js")
+
+
 //- header, footer are children, parent included the children.
-
-//- - const x = 9;

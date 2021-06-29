@@ -158,7 +158,7 @@ tourSchema.virtual("durationWeeks").get(function () {
   return this.duration / 7;
 });
 
-// VIRTUAL POPULATE
+// VIRTUAL POPULATE.
 // The field in the ref property, which references to this tourSchema.
 tourSchema.virtual("reviews", {
   ref: "Review",

@@ -144,7 +144,7 @@ body {
     to(#eb4d4b)
   );
   background-image: linear-gradient(to right, #ff7730, #eb4d4b);
-  font-size: 3.5rem;
+  font-size: 3.2rem;
 }
 
 .heading-primary,
@@ -171,6 +171,10 @@ body {
     rgba(125, 213, 111, 0.85),
     rgba(40, 180, 135, 0.85)
   );
+}
+
+.custom-heading {
+  color: rgba(125, 213, 111, 0.85);
 }
 
 .heading-primary {
@@ -344,12 +348,7 @@ body {
 .section-header {
   position: relative;
   height: 38vw;
-  clip-path: polygon(
-    0 0,
-    100% 0,
-    100% calc(100% - var(--section-rotate)),
-    0 100%
-  );
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--section-rotate)), 0 100%);
   -webkit-clip-path: polygon(
     0 0,
     100% 0,
@@ -547,7 +546,7 @@ body {
 
 .section-map {
   position: relative;
-  height: 65rem;
+  height: 58rem;
   margin-top: calc(0px - var(--section-rotate));
 }
 
@@ -1199,7 +1198,7 @@ body {
 
 .error {
   position: absolute;
-  top: 35%;
+  top: 40%;
   left: 50%;
   -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
@@ -1219,12 +1218,12 @@ body {
   margin-bottom: 1rem;
 }
 .error__emoji {
-  font-size: 3.75rem;
+  font-size: 2.5rem;
   margin-left: 1rem;
 }
 .error__msg {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 2.2rem;
+  font-weight: 600;
   max-width: 50rem;
   margin: 0 auto;
 }

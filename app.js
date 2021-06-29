@@ -13,6 +13,12 @@ const helmet = require("helmet");
 // Manipulate path names
 const path = require("path");
 
+// CORS
+const cors = require("cors");
+
+// Cookie
+const cookieParser = require("cookie-parser");
+
 // Data Sanitization
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
@@ -25,13 +31,12 @@ const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
 const viewRouter = require("./routes/viewRoutes");
+const bookingRouter = require("./routes/bookingRoutes");
 
 // Errors
 const AppError = require("./utils/AppError");
 const globalErrorController = require("./controllers/errorControllers");
 
-// Env must be before app for it to be accessable.
-dotenv.config({ path: "./config.env" });
 const app = express();
 
 // Set a template engine using express. Pug templates are called views in express(MVC's)
@@ -49,12 +54,16 @@ app.use(helmet());
 // Serving static files like HTML, CSS etc in the browser. public folder is considered default, hence all assets come from here. Each asset triggers a get request. Its path location is the route of a get request.
 app.use(express.static(path.join(__dirname, "public")));
 
-////////   BODY PARSER, reads data from body into request.body
+////////   BODY PARSER, reads data from body into request.body. This can't parse files, only text for now.
 app.use(
   express.json({
     limit: "10kb",
   })
 );
+
+////// FORM DATA PARSER, reads data from URLEncoded form(normal form, as its this by default) into request.body.
+app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(cookieParser());
 
 // Limit request from same IP.
 const limiter = rateLimit({
@@ -96,8 +105,16 @@ if (process.env.NODE_ENV === "development") {
 // Creating MIDDLEWARE, next is to go to the next middleware in the middleware stack
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  // console.log(req.cookies);
   next();
 });
+
+const options = {
+  credentials: true,
+  origin: "http://localhost:3000",
+};
+
+app.use(cors(options));
 
 // Mounting view viewRoutes
 app.use("/", viewRouter);
@@ -106,6 +123,7 @@ app.use("/", viewRouter);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/bookings", bookingRouter);
 
 // When the code reaches here, it means that none of the routes were able to catch it, the * stands for every http method
 

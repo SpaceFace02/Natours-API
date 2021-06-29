@@ -1,3 +1,7 @@
+// Image uploading and processing
+const multer = require("multer");
+const sharp = require("sharp");
+
 // The concept of fat models and thin controllers, a lot of code is repeated in the catch blocks, the rey catch block is copy pasted many times, and its not focused, hence not a good practice.
 const Tour = require("../models/tourModel");
 
@@ -14,10 +18,89 @@ const factoryFn = require("./handlerFactory");
 exports.aliasTopTours = (request, response, next) => {
   request.query.limit = "5";
   request.query.sort = "-ratingsAverage,price";
-  request.query.fields =
-    "name,price,ratingsAverage,duration,summary,difficulty";
+  request.query.fields = "name,price,ratingsAverage,duration,summary,difficulty";
   next();
 };
+
+//////////////////////// MULTER /////////////////////////////
+// Creates a buffer object of sorts.
+const multerMemStorage = multer.memoryStorage();
+
+// This specifies that whether the files uploaded are images or not.
+const multerFilter = (request, file, callback) => {
+  // For all images, mimetype starts with "image".
+  if (file.mimetype.startsWith("image")) callback(null, true);
+  // callback is used for error handling and the first argument is error, second argument is the whether the validation is true or false. Only when its a middleware and not a instance of multer, this holds true, otherwise the second argument is the filename.
+  else callback(new AppError("Please upload only images", 400), false);
+};
+
+// Where the files are uploaded when multer is used. Images are not uploaded in the database, they are just put in the file system and we put the path in the database.
+const upload = multer({
+  storage: multerMemStorage,
+  fileFilter: multerFilter,
+});
+
+// As per docs, an array of field objects.
+exports.uploadTourImages = upload.fields([
+  {
+    name: "imageCover",
+    maxCount: 1,
+  },
+  {
+    name: "images",
+    maxCount: 3,
+  },
+]);
+
+exports.resizeTourImages = catchAsync(async (request, response, next) => {
+  if (!request.files.imageCover || !request.files.images) return next();
+
+  // 1. ImageCover
+
+  // This routes always contains the id of the tour in its URL params
+  const imgCoverFilename = `tour-${request.params.id}-${Date.now()}-cover.jpeg`;
+
+  // 1. Cover image processing. ImageCover is an array.
+  await sharp(request.files.imageCover[0].buffer)
+    .resize(2000, 1333)
+    .toFormat("jpeg")
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/tours/${imgCoverFilename}`);
+
+  // Saving the filename to request.body as its passed in the updateOne function in the handlerFactory. This is not the updateMe function, so there's not filtered body, just body.
+
+  // Save it to the database, with this fixed name in schema definition.
+  request.body.imageCover = imgCoverFilename;
+
+  // 2. Images
+
+  // request.body doesn't contain anything, so we pass request.body.images to database, converted to an array of strings.
+  request.body.images = [];
+
+  // We are awaiting the callback function, not the mapping(forEach) function, hence we need to await the whole wrapper, otherwise it will go to the next next() line. So we can await an array of promises using Promise.all. The resizing works as its running in the background asynchronously and not in the event loop.
+
+  // We do map as map returns a new array of promises(as its an async function inside it) over which we can execute promise.all, forEach mutates the original array and doesn't return anything.
+
+  await Promise.all(
+    request.files.images.map(async (file, i) => {
+      const imageFilename = `tour-${request.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/tours/${imageFilename}`);
+
+      // So that the updateTour handler puts data in new document, when it updates it.
+      request.body.images.push(imageFilename);
+    })
+  );
+
+  next();
+});
+
+// One field, many images, for example
+// upload.array("images", 5) request.files (plural)
 
 //////////////////////// Functions \\\\\\\\\\\\\\\\\\\\\\\\\\
 exports.getAllTours = factoryFn.getAll(Tour, "tour");
@@ -131,10 +214,7 @@ exports.getToursWithin = catchAsync(async (request, response, next) => {
 
   if (!lat || !lng)
     return next(
-      new AppError(
-        "Please enter latitude and longitude in the format lat,lng.",
-        400
-      )
+      new AppError("Please enter latitude and longitude in the format lat,lng.", 400)
     );
 
   // To convert to radians, we need to divide the distance by the radius of the earth.EPIPHANY:
@@ -166,10 +246,7 @@ exports.getDistances = catchAsync(async (request, response, next) => {
 
   if (!lat || !lng)
     return next(
-      new AppError(
-        "Please enter latitude and longitude in the format lat,lng.",
-        400
-      )
+      new AppError("Please enter latitude and longitude in the format lat,lng.", 400)
     );
   // startLocation already has 2dsphere geospatial index on it.
   const distances = await Tour.aggregate([
