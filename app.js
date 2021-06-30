@@ -105,6 +105,9 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// Compress all text only, not images as jpgs are already compressed, sent to client, more like a bandwidth control system.
+app.use(compression());
+
 // Creating MIDDLEWARE, next is to go to the next middleware in the middleware stack
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -135,9 +138,6 @@ app.all("*", (request, response, next) => {
   next(new AppError(`Can't access ${request.url} on this server!`, 404));
   // Status is automatically figured out.
 });
-
-// Compress all text only, not images as jpgs are already compressed, sent to client, more like a bandwidth control system.
-app.use(compression());
 
 // Express recognizes it as a error global middleware when we specify error first.
 app.use(globalErrorController);
