@@ -8,7 +8,7 @@ export const login = async (email, password) => {
   try {
     const res = await axios({
       method: "post",
-      url: "http://localhost:3000/api/v1/users/login/",
+      url: "/api/v1/users/login",
       data: {
         email: email,
         password: password,
@@ -29,17 +29,17 @@ export const login = async (email, password) => {
 };
 
 export const logout = async () => {
+  // Relative URL, remember that the API and the website are hosted on the same server, this will work. Just like images. Its the same domain.
   try {
     const res = await axios({
       method: "GET",
-      url: "http://localhost:3000/api/v1/users/login",
+      url: `/api/v1/users/login`,
       withCredentials: true,
     });
 
     // Reload as true to prevent cache reload, we want server reload.
     if (res.status === 200) location.replace("/");
   } catch (err) {
-    console.log(err);
     showAlert("error", "Error logging out! Try again.");
   }
 };

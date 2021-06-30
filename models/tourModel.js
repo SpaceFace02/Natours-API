@@ -217,7 +217,7 @@ tourSchema.pre("aggregate", function (next) {
     $match: { secretTour: { $ne: true } },
   });
 
-  console.log(this._pipeline);
+  // console.log(this._pipeline);
   next();
 });
 
@@ -232,10 +232,11 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 // Post gets access to all docs returned from that query, not the query itself as its executed after the query.
-tourSchema.post(/^find/, function (documents, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds`);
-  next();
-});
+// REVIEW:
+// tourSchema.post(/^find/, function (documents, next) {
+//   console.log(`Query took ${Date.now() - this.start} milliseconds`);
+//   next();
+// });
 
 // Model, always call this after all middleware and business logic, just before exporting it.
 const Tour = mongoose.model("Tour", tourSchema);

@@ -19,6 +19,9 @@ const cors = require("cors");
 // Cookie
 const cookieParser = require("cookie-parser");
 
+// Compressing responses
+const compression = require("compression");
+
 // Data Sanitization
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
@@ -111,7 +114,7 @@ app.use((req, res, next) => {
 
 const options = {
   credentials: true,
-  origin: "http://localhost:3000",
+  origin: "/",
 };
 
 app.use(cors(options));
@@ -132,6 +135,9 @@ app.all("*", (request, response, next) => {
   next(new AppError(`Can't access ${request.url} on this server!`, 404));
   // Status is automatically figured out.
 });
+
+// Compress all text only, not images as jpgs are already compressed, sent to client, more like a bandwidth control system.
+app.use(compression());
 
 // Express recognizes it as a error global middleware when we specify error first.
 app.use(globalErrorController);

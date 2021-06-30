@@ -103,7 +103,6 @@ if (bookTourBtn) {
     // Changing text
     e.target.innerHTML = "Processing...";
     // destructuring, otherwise do dataset.tourId. Even the getAttribute function works as used above for locations.
-    console.log(e.target.dataset);
     const { tourId } = e.target.dataset;
     bookTour(tourId);
   });

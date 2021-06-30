@@ -6,8 +6,9 @@ export const updateUserDataSettings = async (data, type) => {
   // Whether type is password or not. Change URLs if it is.
   const url =
     type === "password"
-      ? "http://localhost:3000/api/v1/users/updateMyPassword"
-      : "http://localhost:3000/api/v1/users/updateMe";
+      ? "/api/v1/users/updateMyPassword"
+      : "/api/v1/users/updateMe";
+  // Same server for API and website, hence it works.
 
   try {
     const res = await axios({
@@ -23,7 +24,6 @@ export const updateUserDataSettings = async (data, type) => {
       );
   } catch (err) {
     showAlert("error", err.response.data.message);
-    console.log(err);
   }
 
   // We have specified err.response.data.message as the error comes from the API, and it is an operational error, we know about the error.

@@ -41,7 +41,7 @@ const createSignTokenAndResponse = (user, status_code, response, message) => {
   // 90d is understood only by JWT, not cookie. Days in milliseconds.
   response.cookie("jwt", token, cookieOptions);
 
-  response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  response.setHeader("Access-Control-Allow-Origin", "/");
   response.setHeader("Access-Control-Allow-Headers", "jwt");
   response.setHeader("Access-Control-Allow-Credentials", "true");
 

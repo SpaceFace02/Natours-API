@@ -73,10 +73,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // We are creating an instance method, which is available to every document of a certain collection, hence we define it in the schema.
-userSchema.methods.checkHash = async function (
-  candidatePassword,
-  userPassword
-) {
+userSchema.methods.checkHash = async function (candidatePassword, userPassword) {
   // this won't work as select is false, hence we pass in userPassword as well.
   // this.password
 
@@ -108,7 +105,6 @@ userSchema.methods.changedPassword = function (JWTTimeStamp) {
   // Also its in milliseconds. Or you can also use parseInt.
   if (this.passwordChangedAt) {
     const changedTimeStamp = Number(this.passwordChangedAt.getTime() / 1000);
-    // console.log(changedTimeStamp, JWTTimeStamp);
 
     // JWT created at 19th Nov for example, changed on 20th, expired on 24th. Hence password is changed. Normally JWT is issued after(greater) the password has been created.
 

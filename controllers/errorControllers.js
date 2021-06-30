@@ -20,7 +20,7 @@ const handleDuplicateFieldsDB = (error) => {
 const handleValidationErrorDB = (error) => {
   // Object.values returns an array, may ways of doing this.
   const Errors = Object.values(error.errors).map((element) => element.message);
-  console.log(Errors);
+  // console.log(Errors);
   const message = `Invalid input data: ${Errors.join(" , ")}.`;
   return new AppError(message, 404);
 };
@@ -107,8 +107,7 @@ module.exports = (error, request, response, next) => {
 
     // We don't use MongoError here, as there can be multiple mongoerrors like same name, same duration or other errors, related to mongodb in general.
     if (error.code === 11000) errorCopy = handleDuplicateFieldsDB(error);
-    if (error.name === "ValidationError")
-      errorCopy = handleValidationErrorDB(error);
+    if (error.name === "ValidationError") errorCopy = handleValidationErrorDB(error);
 
     if (error.name === "JsonWebTokenError")
       errorCopy = handleJsonWebTokenErrorDB(error);
