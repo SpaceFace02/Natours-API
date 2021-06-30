@@ -52,9 +52,10 @@ const createSignTokenAndResponse = (
   // 90d is understood only by JWT, not cookie. Days in milliseconds.
   response.cookie("jwt", token, cookieOptions);
 
-  response.setHeader("Access-Control-Allow-Origin", "/");
-  response.setHeader("Access-Control-Allow-Headers", "jwt");
-  response.setHeader("Access-Control-Allow-Credentials", "true");
+  // CORS does this heavy lifting and sets these headers by itself. This is more manual way of doing it, but CORS package makes it easier for us.
+  // response.setHeader("Access-Control-Allow-Origin", "/");
+  // response.setHeader("Access-Control-Allow-Headers", "jwt");
+  // response.setHeader("Access-Control-Allow-Credentials", "true");
 
   // Removes password from output
   user.password = undefined;

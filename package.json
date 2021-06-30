@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/SpaceFace02/Natours-API#readme",
   "engines": {
-    "node": ">=10.0.0"
+    "node": "^14"
   },
   "dependencies": {
     "@babel/polyfill": "^7.12.1",

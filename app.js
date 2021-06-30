@@ -6,7 +6,6 @@
 
 const express = require("express");
 const morgan = require("morgan");
-const dotenv = require("dotenv");
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 
@@ -50,9 +49,23 @@ app.set("view engine", "pug");
 // ./ is relative to the directory from which we launch the node application. We don't know whether the path provided is with a slash or not, so path.join() prevents this bug.
 app.set("views", path.join(__dirname, "views"));
 
-/////////////////  GLOBAL MIDDLWARE ///////////////////////////
+/////////////////  GLOBAL MIDDLEWARE ///////////////////////////
+// Remember that the server has no restriction on accessing any website or domain, as its okay. Only the browser has restrictions.
+const options = {
+  origin: "*",
+};
+
+app.use(cors(options));
+// api.natours.com and natours.com, then natours.com is the origin to the API as CORS is mainly for API's.
 
 // Remember, order matters in middleware, we can't use the middle ware after the response has been sent back to the client.
+
+////////////////////////////////////  PREFLIGHT CHECK ///////////////////////////////////
+// REVIEW:
+// Options is not to create any new options in our application. Its just a method like get or post,that we have to respond to. The browser sends a request to the server asking if the method is safe to perform. We need to respond to it.
+app.options("*", cors());
+// Complex routes, complex requests.
+// app.options("/api/v1/tours/:id", cors());
 
 // Special HTTP headers, we pass a function in, not a function call, but here the function returns a function, so its good.
 app.use(helmet());
@@ -118,17 +131,10 @@ app.use((req, res, next) => {
   next();
 });
 
-const options = {
-  credentials: true,
-  origin: "/",
-};
-
-app.use(cors(options));
-
 // Mounting view viewRoutes
 app.use("/", viewRouter);
 
-// Mounting a router on a route below as middleware
+// Mounting a router on a route below as middleware. We could add cors or other middleware in front of tourRouter or userRouter, as its a middleware.
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
