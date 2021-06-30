@@ -20,23 +20,34 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSignTokenAndResponse = (user, status_code, response, message) => {
+const createSignTokenAndResponse = (
+  user,
+  status_code,
+  response,
+  message,
+  request
+) => {
   // Signing Token
   const token = signToken(user._id);
 
+  // Remember that for non same site cookies to work, we need to specify both samesite none and secure. So remove it.
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     // Cannot be modified by browser.(XSS Attacks).
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
+    // sameSite: "none",
     path: "/",
+    // Express has a secure property. This step is very heroku specific, an esoteric problem. if condition is true, secure is true.
+    secure: request.secure || request.headers["x-forwarded-proto"] === "https",
   };
 
-  // Sent only via HTTPS during production.
-  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+  // EPIPHANY: REVIEW:
+  // Sent only via HTTPS during production. However not all production are https or secure.
+  // if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  // if (request.secure) Even this doesn't work as heroku proxies the requests and modifies all requests to the application.
 
   // 90d is understood only by JWT, not cookie. Days in milliseconds.
   response.cookie("jwt", token, cookieOptions);
@@ -74,7 +85,7 @@ exports.signup = catchAsync(async (request, response, next) => {
   const url = `${request.protocol}://${request.get("host")}/me`;
   await new Email(newUser, url).sendWelcomeEmail();
 
-  createSignTokenAndResponse(newUser, 201, response, "Success");
+  createSignTokenAndResponse(newUser, 201, response, "Success", request);
 });
 
 exports.login = catchAsync(async (request, response, next) => {
@@ -96,7 +107,7 @@ exports.login = catchAsync(async (request, response, next) => {
   // The user is an instance method and is available in all documents, hence its in user.
 
   // 3. Send back token to client, if everything is fine.
-  createSignTokenAndResponse(user, 200, response, "Success");
+  createSignTokenAndResponse(user, 200, response, "Success", request);
 });
 
 // As we can't manipulate the cookie in the client side as we have set httpOnly property to true. So we can only access the cookie in the backend, hence we need route for logout to keep it super secure.
@@ -268,7 +279,7 @@ exports.resetPassword = catchAsync(async (request, response, next) => {
   // We run save as we want to run all validators and middleware functions before saving. We don't just want to save data without validation.
 
   // 4. Log the user in by sending the JWT
-  createSignTokenAndResponse(user, 200, response, "Success");
+  createSignTokenAndResponse(user, 200, response, "Success", request);
 
   next();
 });
@@ -294,7 +305,8 @@ exports.updatePassword = catchAsync(async (request, response, next) => {
     user,
     200,
     response,
-    "Successfully changed password! 🎉"
+    "Successfully changed password! 🎉",
+    request
   );
 
   // Setting a new password takes some time due to the encryption process.

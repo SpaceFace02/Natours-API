@@ -42,6 +42,9 @@ const globalErrorController = require("./controllers/errorControllers");
 
 const app = express();
 
+// Trusting proxies which heroku uses to modify requests. At the top is a must.
+app.enable("trust proxy");
+
 // Set a template engine using express. Pug templates are called views in express(MVC's)
 app.set("view engine", "pug");
 // ./ is relative to the directory from which we launch the node application. We don't know whether the path provided is with a slash or not, so path.join() prevents this bug.
@@ -105,7 +108,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-// Compress all text only, not images as jpgs are already compressed, sent to client, more like a bandwidth control system.
+// Compress all text only, not images as jpgs are already compressed, sent to client, more like a bandwidth control system. Add this before the router so that the router gets access to it.
 app.use(compression());
 
 // Creating MIDDLEWARE, next is to go to the next middleware in the middleware stack

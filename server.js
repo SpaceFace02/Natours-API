@@ -53,4 +53,13 @@ process.on("unhandledRejection", (err) => {
   });
 });
 
+// SIGTERM is a signal which heroku emanates after 24 hours. It shuts down the server temporarily to keep things healthy. Hence we don't want any hanging request when we receive the signal. Hence we shut down gracefully.
+process.on("SIGTERM", () => {
+  console.log("👋🏻❌SIGTERM RECEIVED. Shutting down gracefully");
+  server.close(() => {
+    // No need to close it as SIGTERM automatically shuts down the server. SIGTERM is a polite way to terminate a program.
+    console.log("💥 Process Terminated");
+  });
+});
+
 // If there's an error in a middleware, then express will automatically go to the global error handling middleware, i.e in the errorController.js file, not an operational error.
