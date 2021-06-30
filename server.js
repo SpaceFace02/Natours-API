@@ -35,7 +35,7 @@ mongoose
   })
   .then(() => console.log("Connected"));
 
-// Start Server
+// Start Server. Port is extremely important for heroku to work and deploy your model. A static port will not work.
 const port = process.env.PORT;
 const server = app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
