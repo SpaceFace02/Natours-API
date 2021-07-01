@@ -80,7 +80,9 @@ exports.createBookingCheckout = catchAsync(async (request, response, next) => {
 const createBookingCheckout = async (session) => {
   // We don't have access to URL in the success URL, hence we forethought and added the client-reference-id.
   const tour = session.client_reference_id;
-  const user = (await User.find({ email: session.customer_email })).id;
+
+  // findOne is crucial otherwise mongo returns an array.
+  const user = (await User.findOne({ email: session.customer_email })).id;
 
   // It just returns the same session object we created, hence price is there, however we need tourId for the booking model, hence we specified the client reference_id.
   const price = session.amount_total / 100; // Again in dollars.
