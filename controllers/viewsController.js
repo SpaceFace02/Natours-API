@@ -141,7 +141,7 @@ exports.alerts = (request, response, next) => {
   // In the stripe docs, it mentions that sometimes the webhook is called a little after the success url is called.
   if (alert === "booking") {
     response.locals.alert =
-      "Your booking was successful. Please check your email for a confirmation and more information \n If your booking doesn't show up here immediately, please check back later.";
+      "Your booking was successful. Please check your email for a confirmation and more information. \n\t If your booking doesn't show up here immediately, please check back later.";
   }
   next();
 };
