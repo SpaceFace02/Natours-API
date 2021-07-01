@@ -122,9 +122,15 @@ exports.getMyTours = catchAsync(async (request, response, next) => {
     });
   }
 
-  return response.status(200).render("overview", {
-    title: "Your Booked Tours",
-    tours: bookedTours,
-    heading: "Your Booked Tours",
-  });
+  return response
+    .status(200)
+    .set(
+      "Content-Security-Policy",
+      "default-src 'self' https://*.stripe.com https://stripe.com  ;base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src https://cdnjs.cloudflare.com https://*.stripe.com 'self' blob: ;script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests;"
+    )
+    .render("overview", {
+      title: "Your Booked Tours",
+      tours: bookedTours,
+      heading: "Your Booked Tours",
+    });
 });

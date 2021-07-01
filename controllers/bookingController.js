@@ -73,7 +73,7 @@ exports.createBookingCheckout = catchAsync(async (request, response, next) => {
 /////////////////////////////////////////  END ////////////////////////////////////////////////
 
 // The session is what we created as a session above.
-exports.createBookingCheckout = async (session) => {
+const createBookingCheckout = async (session) => {
   // We don't have access to URL in the success URL, hence we forethought and added the client-reference-id.
   const tour = session.client_reference_id;
   const user = (await User.find({ email: session.customer_email })).id;
