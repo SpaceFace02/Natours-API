@@ -107,3 +107,9 @@ if (bookTourBtn) {
     bookTour(tourId);
   });
 }
+
+const messageAlert = document.querySelector("body").getAttribute("data-alert");
+
+if (messageAlert) {
+  showAlert("success", messageAlert, 12);
+}

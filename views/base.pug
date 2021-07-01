@@ -19,8 +19,8 @@ html
       link(rel= "shortcut icon" type="image/png" href="/img/favicon.png")
       link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
 
-
-  body
+  //- You can put the alert even in overview, I am putting it here, to make it more global. The alert comes from response.locals which is accessible in all templates.
+  body(data-alert=`${ alert ? alert : ""}`)
     // HEADER
     include _header
 

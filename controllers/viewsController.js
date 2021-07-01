@@ -1,7 +1,7 @@
+// ALWAYS RE-BUILD THE PARCEL BUNDLE, EVERYTIME YOU MAKE CHANGES IN THE FRONT-END.
 const Tour = require("../models/tourModel");
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const factoryFn = require("./handlerFactory");
 const User = require("../models/userModel");
 const Booking = require("../models/bookingModel");
 
@@ -134,3 +134,14 @@ exports.getMyTours = catchAsync(async (request, response, next) => {
       heading: "Your Booked Tours",
     });
 });
+
+exports.alerts = (request, response, next) => {
+  const { alert } = request.query;
+
+  // In the stripe docs, it mentions that sometimes the webhook is called a little after the success url is called.
+  if (alert === "booking") {
+    response.locals.alert =
+      "Your booking was successful. Please check your email for a confirmation and more information \n If your booking doesn't show up here immediately, please check back later.";
+  }
+  next();
+};

@@ -25,7 +25,9 @@ exports.getCheckoutSession = catchAsync(async (request, response, next) => {
     // }&user=${request.user.id}&price=${tour.price}`,
 
     ///////////////////////////// PERMANENT METHOD   ////////////////////////////
-    success_url: `${request.protocol}://${request.get("host")}/mytours`,
+    success_url: `${request.protocol}://${request.get(
+      "host"
+    )}/mytours?alert=booking`,
     cancel_url: `${request.protocol}://${request.get("host")}/tour/${tour.slug}`,
     customer_email: request.user.email,
     client_reference_id: request.params.tourId,
