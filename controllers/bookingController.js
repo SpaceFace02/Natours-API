@@ -83,7 +83,7 @@ const createBookingCheckout = async (session) => {
   const user = (await User.find({ email: session.customer_email })).id;
 
   // It just returns the same session object we created, hence price is there, however we need tourId for the booking model, hence we specified the client reference_id.
-  const price = session.line_items[0].amount / 100; // Again in dollars.
+  const price = session.amount_total / 100; // Again in dollars.
 
   // The bookings are parent referencing, contain the ids of tour and user.
   await Booking.create({ tour, user, price });
