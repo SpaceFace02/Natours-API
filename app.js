@@ -35,6 +35,9 @@ const reviewRouter = require("./routes/reviewRoutes");
 const viewRouter = require("./routes/viewRoutes");
 const bookingRouter = require("./routes/bookingRoutes");
 
+// Booking controller
+const bookingController = require("./controllers/bookingController");
+
 // Errors
 const AppError = require("./utils/AppError");
 const globalErrorController = require("./controllers/errorControllers");
@@ -72,6 +75,13 @@ app.use(helmet());
 
 // Serving static files like HTML, CSS etc in the browser. public folder is considered default, hence all assets come from here. Each asset triggers a get request. Its path location is the route of a get request.
 app.use(express.static(path.join(__dirname, "public")));
+
+// Card Checkout handler to create bookings. Stripe calls our web-hook and posts data there. This pre-defined webhook needs data to be a readable stream, not JSON, hence we need to define it before converting the request body in JSON, which is done in the body parser, next line.
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  bookingController.webhookCheckout
+);
 
 ////////   BODY PARSER, reads data from body into request.body. This can't parse files, only text for now.
 app.use(

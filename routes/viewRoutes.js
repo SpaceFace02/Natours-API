@@ -12,7 +12,7 @@ const router = express.Router();
 router.get(
   "/",
   authController.isLoggedIn,
-  bookingController.createBookingCheckout,
+  // bookingController.createBookingCheckout,
   viewsController.getOverview
 );
 router.get("/tour/:slug", authController.isLoggedIn, viewsController.getTour);
