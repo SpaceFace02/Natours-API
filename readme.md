@@ -5,7 +5,7 @@
 ![Image1](img1.png)
 ![Image1](img2.png)
 ![Image1](img3.png)
-![Image4](img3.png)
+![Image4](img4.png)
 
 ## A Full Stack CRUD App,
 - Supports CRUD operations, like Creating, Reading, Updating and Deleting Entries.
