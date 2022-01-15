@@ -9,7 +9,7 @@ const Review = require("../../models/reviewModel");
 const User = require("../../models/userModel");
 
 // Env
-dotenv.config({ path: "./config.env" });
+dotenv.config({ path: "./.env" });
 
 // Mongoose
 const db_string = process.env.DATABASE.replace(

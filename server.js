@@ -15,7 +15,7 @@ process.on("uncaughtException", (err) => {
 });
 
 // ENVS, config them before app, or else we cannot see the env variables in app.js as it hasn't been configured yet. Otherwise, we require app without the env variables and it doesn't get listen properly later on. It must be defined in global variables as early as possible in the code as per its docs. TODO: REVIEW: EPIPHANY:
-dotenv.config({ path: "./config.env" });
+dotenv.config({ path: "./.env" });
 
 const app = require("./app");
 
@@ -36,7 +36,7 @@ mongoose
   .then(() => console.log("Connected"));
 
 // Start Server. Port is extremely important for heroku to work and deploy your model. A static port will not work.
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 const server = app.listen(port, () => {
   console.log(`Listening on port ${port}...`);
 });

@@ -60,6 +60,16 @@ exports.getLoginForm = catchAsync(async (request, response, next) => {
   }
 });
 
+exports.getSignUpForm = catchAsync(async (request, response, next) => {
+  if (!response.locals.user) {
+    response.status(200).render("signup", {
+      title: "Sign Up for an account",
+    });
+  } else {
+    response.redirect("/");
+  }
+});
+
 exports.getAccountDetails = catchAsync(async (request, response) => {
   // We don't query for current user as its already been done in the protect middleware.
   if (response.locals.user) {

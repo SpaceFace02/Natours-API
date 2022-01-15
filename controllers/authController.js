@@ -73,7 +73,8 @@ exports.signup = catchAsync(async (request, response, next) => {
   // The flaw with this, is that everyone signs up as admin, we definietly don't want that.
   // const newUser = await User.create(request.body);
 
-  // People might specifiy roles, so just store the data required in the database, no more, no less.
+  // People might specify roles, so just store the data required in the database, no more, no less.
+
   const newUser = await User.create({
     name: request.body.name,
     email: request.body.email,

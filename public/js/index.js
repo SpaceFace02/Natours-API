@@ -6,6 +6,7 @@ import { login, logout } from "./login";
 import { updateUserDataSettings } from "./updateUserData";
 import { showAlert } from "./alert";
 import { bookTour } from "./stripe";
+import { signup } from "./signup";
 
 // Our Script is integrated at the beginning of the file, hence the DOM is not completely loaded. Onw way to fix this is to move it to the bottom of the file, beu we could also use the following code, i.e a handy event listener.
 
@@ -16,6 +17,7 @@ const logoutBtn = document.querySelector(".nav__el--logout");
 const updateForm = document.querySelector(".form-user-data");
 const updatePasswordForm = document.querySelector(".form-user-password");
 const bookTourBtn = document.querySelector("#booktour");
+const signUpForm = document.querySelector(".uniqueIdentifierSignup");
 
 // DELEGATION
 if (mapbox) {
@@ -35,6 +37,17 @@ if (loginForm) {
     const password = document.querySelector("#password").value;
     e.preventDefault();
     login(email, password);
+  });
+}
+
+if (signUpForm) {
+  signUpForm.addEventListener("submit", (e) => {
+    const email = document.querySelector("#email").value;
+    const password = document.querySelector("#password").value;
+    const name = document.querySelector("#name").value;
+    const passwordConfirm = document.querySelector("#passwordConfirm").value;
+    e.preventDefault();
+    signup(name, email, password, passwordConfirm);
   });
 }
 

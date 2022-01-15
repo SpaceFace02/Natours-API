@@ -45,6 +45,7 @@ const globalErrorController = require("./controllers/errorControllers");
 const app = express();
 
 // Trusting proxies which heroku uses to modify requests. At the top is a must.
+// https://stackoverflow.com/questions/39930070/nodejs-express-why-should-i-use-app-enabletrust-proxy
 app.enable("trust proxy");
 
 // Set a template engine using express. Pug templates are called views in express(MVC's)

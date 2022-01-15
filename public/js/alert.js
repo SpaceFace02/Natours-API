@@ -13,4 +13,4 @@ export const showAlert = (type, message, seconds = 6) => {
   window.setTimeout(hideAlert, seconds * 1000);
 };
 
-// But what if we wanted to add it directly from the back-end. Hence we will manually specify a data attribute on the base right inside the body, at the start. That data attribute will come from response.locals so that we can access it in the pug template.
+// But what if we wanted to add it directly from the back-end. Hence we will manually specify a data attribute on the base right inside the body, at the start. That data attribute will come from response.locals so that we can access it in the pug template. Query params as we want.
