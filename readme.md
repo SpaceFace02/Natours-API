@@ -1,5 +1,5 @@
-# Natours - An full-stack web application to book tours, meet guides and enjoy a seamless web experience.#
-**Deployed on - https://natours-prod.herokuapp.com **
+# Natours - An intuitive full-stack web application to book tours, meet guides and enjoy a seamless web experience.#
+**Deployed on - https://natours-prod.herokuapp.com**
 
 ### Images
 ![Image1](img1.png)
