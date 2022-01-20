@@ -22,13 +22,29 @@
 
 ### Technologies used
 1. NodeJS - Runtime Environment
-2. MongoDB
-3. Express
-4. Mongoose - To interact with MongoDB and create the models
-5. Node - Mailer - to send Emails
-6. Pug Templating
-7. Stripe for Payments
-8. Mapbox - For the map
-9. Parcel - For bundling packages
-10. MailTrap and SMTP - For Emails
-11. Docker - To dockerize the application
+2. MongoDB Atlas - The NO-SQL database used
+3. Express- the main backend framework used
+4. JSON Web Tokens - For user authentication
+5. Mongoose - To interact with MongoDB and create the models
+6. Node - Mailer - to send Emails
+7. Pug Templating
+8. Stripe for Payments
+9. Mapbox - For the map
+10. ParcelJS - For bundling packages
+11. MailTrap and SMTP - For Emails
+12. Docker - To dockerize the application
+13. Postman - API testing
+14. Heroku - For deployment
+
+### To just view the application
+1. Clone the repository
+2. cd into the directory
+3. run ```npm i```
+4. run ```npm start```
+
+### To edit the application
+1. Clone the repository
+2. cd into the directory
+3. run ```npm i```
+4. run ```npm run watch:js``` to start the parcel bundling service
+5. run ```npm start```
