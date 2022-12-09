@@ -1,5 +1,5 @@
 # Natours - An intuitive full-stack web application to book tours, meet guides and enjoy a seamless web experience.#
-**Deployed on - https://natours-prod.herokuapp.com**
+**Deployed on - https://natours-prod.cyclic.app/**
 
 ### Images
 ![Image1](img1.png)
@@ -34,7 +34,7 @@
 11. MailTrap and SMTP - For Emails
 12. Docker - To dockerize the application
 13. Postman - API testing
-14. Heroku - For deployment
+14. Cyclic - For deployment
 
 ### To just view the application
 1. Clone the repository
